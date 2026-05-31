@@ -1241,9 +1241,26 @@ document.getElementById('contactForm').addEventListener('submit', async function
     btn.textContent = 'שגיאה, נסו שוב';
     btn.disabled = false;
     console.error(error);
-  } else {
-    window.location.href = 'thank-you.html';
+    return;
   }
+
+  // Send email to Omri
+  await fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_key: '5c0edf59-efc2-480e-a13e-a50a99a556f8',
+      subject: 'פנייה חדשה מהאתר | עו"ד עומרי דהן ארבל',
+      from_name: 'אתר עו"ד עומרי דהן ארבל',
+      'שם מלא': data.full_name,
+      'טלפון': data.phone,
+      'אימייל': data.email || 'לא צוין',
+      'נושא': data.subject || 'לא צוין',
+      'הודעה': data.message || '',
+    })
+  }).catch(() => {}); // לא לחסום אם המייל נכשל
+
+  window.location.href = 'thank-you.html';
 });
 </script>
 
