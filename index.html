@@ -1130,24 +1130,31 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
     <h2 class="section-title reveal">צרו קשר</h2>
     <div class="contact-grid">
       <div class="contact-form reveal">
-        <form onsubmit="handleSubmit(event)">
+        <form action="https://formsubmit.co/omridlaw@gmail.com" method="POST">
+          <!-- Formsubmit config -->
+          <input type="hidden" name="_subject" value="פנייה חדשה מהאתר | עו&quot;ד עומרי דהן ארבל">
+          <input type="hidden" name="_autoresponse" value="שלום, תודה שפנית למשרד עו&quot;ד עומרי דהן ארבל. קיבלנו את פנייתך ונחזור אליך בהקדם האפשרי. בברכה, משרד עו&quot;ד עומרי דהן ארבל | 054-2233625">
+          <input type="hidden" name="_next" value="https://omri-adv.co.il/#contact">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+
           <div class="form-row">
             <div class="form-group">
               <label><span class="req">*</span>שם מלא</label>
-              <input type="text" placeholder="ישראל ישראלי" required />
+              <input type="text" name="שם מלא" placeholder="ישראל ישראלי" required />
             </div>
             <div class="form-group">
               <label><span class="req">*</span>טלפון</label>
-              <input type="tel" placeholder="050-000-0000" required />
+              <input type="tel" name="טלפון" placeholder="050-000-0000" required />
             </div>
           </div>
           <div class="form-group">
             <label>אימייל</label>
-            <input type="email" placeholder="your@email.com" />
+            <input type="email" name="email" placeholder="your@email.com" />
           </div>
           <div class="form-group">
             <label>נושא הפנייה</label>
-            <select>
+            <select name="נושא">
               <option value="">בחרו נושא...</option>
               <option>רכישה / מכירה של נכס</option>
               <option>חוזה שכירות</option>
@@ -1160,7 +1167,7 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
           </div>
           <div class="form-group">
             <label>הודעה</label>
-            <textarea placeholder="ספרו לנו בקצרה על הנושא שברצונכם לטפל בו..."></textarea>
+            <textarea name="הודעה" placeholder="ספרו לנו בקצרה על הנושא שברצונכם לטפל בו..."></textarea>
           </div>
           <button type="submit" class="submit-btn">שלחו פנייה</button>
           <p class="form-privacy">המידע שנמסר ישמש לצורך חזרה אליכם בלבד. אנו שומרים על פרטיות המידע שלכם ולא נעביר אותו לצד שלישי.</p>
