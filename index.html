@@ -1130,32 +1130,24 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
     <h2 class="section-title reveal">צרו קשר</h2>
     <div class="contact-grid">
       <div class="contact-form reveal">
-        <form action="https://api.web3forms.com/submit" method="POST">
-          <!-- Web3Forms config -->
-          <input type="hidden" name="access_key" value="5c0edf59-efc2-480e-a13e-a50a99a556f8">
-          <input type="hidden" name="subject" value="פנייה חדשה מהאתר | עו&quot;ד עומרי דהן ארבל">
-          <input type="hidden" name="from_name" value="אתר עו&quot;ד עומרי דהן ארבל">
-          <input type="hidden" name="redirect" value="https://omri-adv.co.il/thank-you.html">
-          <input type="hidden" name="botcheck" value="" style="display:none">
-          <input type="hidden" name="autoresponse" value="שלום, תודה שפנית למשרד עו&quot;ד עומרי דהן ארבל. קיבלנו את פנייתך ונחזור אליך בהקדם האפשרי. בברכה, משרד עו&quot;ד עומרי דהן ארבל | 054-2233625">
-
+        <form id="contactForm">
           <div class="form-row">
             <div class="form-group">
               <label><span class="req">*</span>שם מלא</label>
-              <input type="text" name="שם מלא" placeholder="ישראל ישראלי" required />
+              <input type="text" id="fullName" placeholder="ישראל ישראלי" required />
             </div>
             <div class="form-group">
               <label><span class="req">*</span>טלפון</label>
-              <input type="tel" name="טלפון" placeholder="050-000-0000" required />
+              <input type="tel" id="phone" placeholder="050-000-0000" required />
             </div>
           </div>
           <div class="form-group">
             <label>אימייל</label>
-            <input type="email" name="email" placeholder="your@email.com" />
+            <input type="email" id="email" placeholder="your@email.com" />
           </div>
           <div class="form-group">
             <label>נושא הפנייה</label>
-            <select name="נושא">
+            <select id="subject">
               <option value="">בחרו נושא...</option>
               <option>רכישה / מכירה של נכס</option>
               <option>חוזה שכירות</option>
@@ -1168,7 +1160,7 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
           </div>
           <div class="form-group">
             <label>הודעה</label>
-            <textarea name="הודעה" placeholder="ספרו לנו בקצרה על הנושא שברצונכם לטפל בו..."></textarea>
+            <textarea id="message" placeholder="ספרו לנו בקצרה על הנושא שברצונכם לטפל בו..."></textarea>
           </div>
           <button type="submit" class="submit-btn">שלחו פנייה</button>
           <p class="form-privacy">המידע שנמסר ישמש לצורך חזרה אליכם בלבד. אנו שומרים על פרטיות המידע שלכם ולא נעביר אותו לצד שלישי.</p>
@@ -1219,6 +1211,41 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
     <a href="tel:054-2233625" class="footer-phone">054-2233625</a>
   </div>
 </footer>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _supabase = supabase.createClient(
+  'https://ukosuuepdpdnbuavmidd.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrb3N1dWVwZHBkbmJ1YXZtaWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjExODQsImV4cCI6MjA5NTc5NzE4NH0.lLc2UFKT5aCHW9myPb8FUymYwhdSACgfyg7uZLWaXjo'
+);
+
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('.submit-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'שולח...';
+  btn.disabled = true;
+
+  const data = {
+    full_name: document.getElementById('fullName').value,
+    phone:     document.getElementById('phone').value,
+    email:     document.getElementById('email').value || null,
+    subject:   document.getElementById('subject').value || null,
+    message:   document.getElementById('message').value || null,
+  };
+
+  const { error } = await _supabase.from('contact_submissions').insert([data]);
+
+  if (error) {
+    btn.textContent = 'שגיאה, נסו שוב';
+    btn.disabled = false;
+    console.error(error);
+  } else {
+    window.location.href = 'thank-you.html';
+  }
+});
+</script>
 
 <!-- ═══ WHATSAPP BUTTON ═══ -->
 <a href="https://wa.me/972542233625" target="_blank" rel="noopener noreferrer" class="fab-whatsapp" aria-label="צור קשר בוואטסאפ">
