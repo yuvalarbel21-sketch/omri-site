@@ -935,10 +935,18 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
   section { padding: 64px 20px; }
   .nav-inner { padding: 0 16px; gap: 12px; }
   .nav-links { display: none; }
-  .hero-content { padding: 40px 20px 40px; gap: 32px; }
-  .hero-cols { grid-template-columns: 1fr; direction: rtl; }
-  .hero-portrait { aspect-ratio: 1/1; max-width: 300px; margin: 0 auto; }
-  .hero-logo-wrap img { width: 90px; }
+  /* Hero mobile: text first, portrait smaller below */
+  .hero-content { padding: 32px 20px 40px; gap: 24px; }
+  .hero-cols { grid-template-columns: 1fr; direction: rtl; gap: 24px; }
+  .hero-text { order: 1; }
+  .hero-portrait-wrap { order: 2; width: 55%; margin: 0 auto; }
+  .hero-portrait { aspect-ratio: 3/4; }
+  .hero-portrait-wrap::before { inset: -5px; border-radius: 18px; }
+  .hero-logo-wrap { margin-bottom: 16px; }
+  .hero-logo-wrap img { width: 75px; }
+  .hero-title { font-size: 28px; }
+  .hero-sub { font-size: 15px; }
+  .hero-ctas { margin-bottom: 24px; }
   .hero-stats { gap: 20px; }
   .services-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
