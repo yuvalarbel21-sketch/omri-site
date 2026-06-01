@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard | עו"ד עומרי דהן ארבל</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #0f1420; color: #fff; direction: rtl; min-height: 100vh; }
+
+/* Login */
+#loginScreen {
+  display: flex; align-items: center; justify-content: center; min-height: 100vh;
+}
+.login-card {
+  background: #1a2235; border: 1px solid #2a3550; border-radius: 16px;
+  padding: 48px; width: 340px; text-align: center;
+}
+.login-card h2 { font-size: 22px; color: #C9A84C; margin-bottom: 8px; }
+.login-card p { font-size: 14px; color: #888; margin-bottom: 28px; }
+.login-card input {
+  width: 100%; background: #0f1420; border: 1px solid #2a3550; border-radius: 8px;
+  padding: 12px 16px; color: #fff; font-size: 15px; margin-bottom: 14px;
+  outline: none; text-align: right;
+}
+.login-card input:focus { border-color: #C9A84C; }
+.login-btn {
+  width: 100%; background: #C9A84C; color: #0f1420; border: none;
+  border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.login-btn:hover { background: #A07830; }
+.login-error { color: #e74c3c; font-size: 13px; margin-top: 10px; }
+
+/* Dashboard */
+#dashboard { display: none; }
+.topbar {
+  background: #1a2235; border-bottom: 1px solid #2a3550;
+  padding: 0 32px; height: 60px; display: flex; align-items: center;
+  justify-content: space-between;
+}
+.topbar-brand { font-size: 16px; font-weight: 700; color: #C9A84C; }
+.topbar-sub { font-size: 12px; color: #666; }
+.logout-btn {
+  background: none; border: 1px solid #2a3550; color: #888;
+  padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.logout-btn:hover { color: #fff; border-color: #fff; }
+
+.main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+/* Stats row */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: #1a2235; border: 1px solid #2a3550; border-radius: 14px;
+  padding: 24px; text-align: center;
+}
+.stat-value { font-size: 36px; font-weight: 700; color: #C9A84C; margin-bottom: 6px; }
+.stat-label { font-size: 13px; color: #888; }
+
+/* Charts row */
+.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 28px; }
+.chart-card {
+  background: #1a2235; border: 1px solid #2a3550; border-radius: 14px; padding: 24px;
+}
+.chart-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 20px; }
+
+/* Submissions */
+.submissions-card {
+  background: #1a2235; border: 1px solid #2a3550; border-radius: 14px; padding: 24px;
+}
+.submissions-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 11px; color: #888; font-weight: 600; text-align: right; padding: 8px 12px; border-bottom: 1px solid #2a3550; letter-spacing: 0.08em; }
+td { font-size: 13px; color: #ccc; padding: 10px 12px; border-bottom: 1px solid #1a2235; }
+tr:hover td { background: rgba(201,168,76,0.04); }
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
+}
+.badge-mobile { background: rgba(201,168,76,0.15); color: #C9A84C; }
+.badge-desktop { background: rgba(100,180,255,0.15); color: #64b4ff; }
+
+.loading { text-align: center; color: #888; padding: 40px; font-size: 14px; }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>Dashboard</h2>
+    <p>עו"ד עומרי דהן ארבל</p>
+    <input type="password" id="passwordInput" placeholder="סיסמה" onkeydown="if(event.key==='Enter')login()" />
+    <button class="login-btn" onclick="login()">כניסה</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="topbar">
+    <div>
+      <div class="topbar-brand">📊 Dashboard</div>
+      <div class="topbar-sub">עו"ד עומרי דהן ארבל</div>
+    </div>
+    <button class="logout-btn" onclick="logout()">יציאה</button>
+  </div>
+
+  <div class="main">
+    <div id="loadingMsg" class="loading">טוען נתונים...</div>
+
+    <div id="content" style="display:none">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statToday">—</div>
+          <div class="stat-label">ביקורים היום</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statWeek">—</div>
+          <div class="stat-label">ביקורים השבוע</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMonth">—</div>
+          <div class="stat-label">ביקורים החודש</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statForms">—</div>
+          <div class="stat-label">פניות שהוגשו</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">ביקורים לפי יום (30 יום אחרונים)</div>
+          <canvas id="dailyChart" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">מכשירים</div>
+          <canvas id="deviceChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent submissions -->
+      <div class="submissions-card">
+        <div class="submissions-title">פניות אחרונות</div>
+        <table>
+          <thead>
+            <tr>
+              <th>תאריך</th>
+              <th>שם</th>
+              <th>טלפון</th>
+              <th>אימייל</th>
+              <th>נושא</th>
+            </tr>
+          </thead>
+          <tbody id="submissionsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ukosuuepdpdnbuavmidd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrb3N1dWVwZHBkbmJ1YXZtaWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjExODQsImV4cCI6MjA5NTc5NzE4NH0.lLc2UFKT5aCHW9myPb8FUymYwhdSACgfyg7uZLWaXjo';
+const PASSWORD = 'omri2025';
+
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function login() {
+  const pw = document.getElementById('passwordInput').value;
+  if (pw === PASSWORD) {
+    sessionStorage.setItem('dashAuth', '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('loginError').textContent = 'סיסמה שגויה';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('dashAuth');
+  location.reload();
+}
+
+if (sessionStorage.getItem('dashAuth') === '1') {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadData();
+}
+
+async function loadData() {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const weekStart = new Date(now - 7*24*60*60*1000).toISOString();
+  const monthStart = new Date(now - 30*24*60*60*1000).toISOString();
+
+  // Fetch all views (last 30 days)
+  const { data: views } = await _sb.from('page_views')
+    .select('*').gte('created_at', monthStart).order('created_at', { ascending: true });
+
+  // Fetch submissions
+  const { data: submissions } = await _sb.from('contact_submissions')
+    .select('*').order('created_at', { ascending: false }).limit(10);
+
+  // Stats
+  const today = views.filter(v => v.created_at >= todayStart).length;
+  const week  = views.filter(v => v.created_at >= weekStart).length;
+  document.getElementById('statToday').textContent = today;
+  document.getElementById('statWeek').textContent  = week;
+  document.getElementById('statMonth').textContent = views.length;
+  document.getElementById('statForms').textContent = submissions?.length || 0;
+
+  // Daily chart
+  const days = {};
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now - i*24*60*60*1000);
+    const key = d.toISOString().slice(0,10);
+    days[key] = 0;
+  }
+  views.forEach(v => {
+    const key = v.created_at.slice(0,10);
+    if (days[key] !== undefined) days[key]++;
+  });
+
+  new Chart(document.getElementById('dailyChart'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(days).map(d => d.slice(5)),
+      datasets: [{ data: Object.values(days), backgroundColor: 'rgba(201,168,76,0.7)', borderRadius: 4 }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: '#2a3550' } },
+        y: { ticks: { color: '#888' }, grid: { color: '#2a3550' }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Device chart
+  const mobile  = views.filter(v => v.device === 'mobile').length;
+  const desktop = views.filter(v => v.device === 'desktop').length;
+  new Chart(document.getElementById('deviceChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Mobile', 'Desktop'],
+      datasets: [{ data: [mobile, desktop], backgroundColor: ['#C9A84C', '#64b4ff'], borderWidth: 0 }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#888', font: { size: 12 } } } },
+      cutout: '65%'
+    }
+  });
+
+  // Submissions table
+  const tbody = document.getElementById('submissionsTable');
+  tbody.innerHTML = (submissions || []).map(s => `
+    <tr>
+      <td>${new Date(s.created_at).toLocaleDateString('he-IL')}</td>
+      <td>${s.full_name}</td>
+      <td>${s.phone}</td>
+      <td>${s.email || '—'}</td>
+      <td>${s.subject || '—'}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+}
+</script>
+</body>
+</html>

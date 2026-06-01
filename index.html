@@ -1215,6 +1215,40 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// Page view tracking
+(function() {
+  const SUPABASE_URL = 'https://ukosuuepdpdnbuavmidd.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrb3N1dWVwZHBkbmJ1YXZtaWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjExODQsImV4cCI6MjA5NTc5NzE4NH0.lLc2UFKT5aCHW9myPb8FUymYwhdSACgfyg7uZLWaXjo';
+
+  // Generate or retrieve session ID
+  let sessionId = sessionStorage.getItem('sid');
+  if (!sessionId) {
+    sessionId = Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('sid', sessionId);
+  }
+
+  const ua = navigator.userAgent;
+  const device = /mobile|android|iphone|ipad/i.test(ua) ? 'mobile' : 'desktop';
+  const browser = /chrome/i.test(ua) ? 'Chrome' : /firefox/i.test(ua) ? 'Firefox' : /safari/i.test(ua) ? 'Safari' : 'Other';
+
+  fetch(`${SUPABASE_URL}/rest/v1/page_views`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      page: window.location.pathname || '/',
+      referrer: document.referrer || 'direct',
+      device,
+      browser,
+      session_id: sessionId
+    })
+  }).catch(() => {});
+})();
+</script>
+<script>
 const _supabase = supabase.createClient(
   'https://ukosuuepdpdnbuavmidd.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrb3N1dWVwZHBkbmJ1YXZtaWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjExODQsImV4cCI6MjA5NTc5NzE4NH0.lLc2UFKT5aCHW9myPb8FUymYwhdSACgfyg7uZLWaXjo'
