@@ -901,8 +901,10 @@ footer {
 .a11y-panel-footer a { color: #1a4a7a; }
 
 /* Accessibility body classes */
-body.a11y-large { font-size: 19px; }
-body.a11y-xlarge { font-size: 22px; }
+body.a11y-large { zoom: 1.15; }
+body.a11y-xlarge { zoom: 1.3; }
+body.a11y-large .fab-a11y, body.a11y-large .a11y-panel,
+body.a11y-xlarge .fab-a11y, body.a11y-xlarge .a11y-panel { zoom: 1; }
 body.a11y-contrast { filter: contrast(1.6) brightness(1.1); }
 body.a11y-grayscale { filter: grayscale(1); }
 body.a11y-links a { text-decoration: underline !important; outline: 2px solid currentColor; }
