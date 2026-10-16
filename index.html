@@ -1233,12 +1233,25 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
   const SUPABASE_URL = 'https://ukosuuepdpdnbuavmidd.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrb3N1dWVwZHBkbmJ1YXZtaWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjExODQsImV4cCI6MjA5NTc5NzE4NH0.lLc2UFKT5aCHW9myPb8FUymYwhdSACgfyg7uZLWaXjo';
 
-  // Generate or retrieve session ID
+  // Browsers that logged into the dashboard don't count as visitors
+  try { if (localStorage.getItem('noTrack') === '1') return; } catch (e) {}
+
+  // Generate or retrieve session ID (per tab)
   let sessionId = sessionStorage.getItem('sid');
   if (!sessionId) {
     sessionId = Math.random().toString(36).substr(2, 9);
     sessionStorage.setItem('sid', sessionId);
   }
+
+  // Generate or retrieve visitor ID (persists across visits, for unique visitors)
+  let visitorId = sessionId;
+  try {
+    visitorId = localStorage.getItem('vid');
+    if (!visitorId) {
+      visitorId = Math.random().toString(36).substr(2, 12);
+      localStorage.setItem('vid', visitorId);
+    }
+  } catch (e) {}
 
   const ua = navigator.userAgent;
   const device = /mobile|android|iphone|ipad/i.test(ua) ? 'mobile' : 'desktop';
@@ -1256,7 +1269,8 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
       referrer: document.referrer || 'direct',
       device,
       browser,
-      session_id: sessionId
+      session_id: sessionId,
+      visitor_id: visitorId
     })
   }).catch(() => {});
 })();

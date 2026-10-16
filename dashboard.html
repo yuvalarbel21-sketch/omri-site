@@ -61,6 +61,8 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f1420; color: #fff; di
 }
 .stat-value { font-size: 36px; font-weight: 700; color: #C9A84C; margin-bottom: 6px; }
 .stat-label { font-size: 13px; color: #888; }
+.stat-period { font-size: 12px; color: #666; margin-bottom: 12px; letter-spacing: 0.04em; }
+.stat-pair { display: flex; justify-content: space-around; gap: 12px; }
 
 /* Charts row */
 .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 28px; }
@@ -70,13 +72,13 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f1420; color: #fff; di
 .chart-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 20px; }
 
 /* Submissions */
-.submissions-card {
+.submissions-card { overflow-x: auto;
   background: #1a2235; border: 1px solid #2a3550; border-radius: 14px; padding: 24px;
 }
 .submissions-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
 table { width: 100%; border-collapse: collapse; }
 th { font-size: 11px; color: #888; font-weight: 600; text-align: right; padding: 8px 12px; border-bottom: 1px solid #2a3550; letter-spacing: 0.08em; }
-td { font-size: 13px; color: #ccc; padding: 10px 12px; border-bottom: 1px solid #1a2235; }
+td { font-size: 13px; color: #ccc; padding: 10px 12px; border-bottom: 1px solid #1a2235; max-width: 280px; white-space: pre-wrap; word-break: break-word; }
 tr:hover td { background: rgba(201,168,76,0.04); }
 .badge {
   display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
@@ -122,18 +124,28 @@ tr:hover td { background: rgba(201,168,76,0.04); }
       <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-value" id="statToday">—</div>
-          <div class="stat-label">ביקורים היום</div>
+          <div class="stat-period">היום</div>
+          <div class="stat-pair">
+            <div><div class="stat-value" id="viewsToday">—</div><div class="stat-label">כניסות</div></div>
+            <div><div class="stat-value" id="uniquesToday">—</div><div class="stat-label">מבקרים ייחודיים</div></div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="statWeek">—</div>
-          <div class="stat-label">ביקורים השבוע</div>
+          <div class="stat-period">7 ימים אחרונים</div>
+          <div class="stat-pair">
+            <div><div class="stat-value" id="viewsWeek">—</div><div class="stat-label">כניסות</div></div>
+            <div><div class="stat-value" id="uniquesWeek">—</div><div class="stat-label">מבקרים ייחודיים</div></div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="statMonth">—</div>
-          <div class="stat-label">ביקורים החודש</div>
+          <div class="stat-period">30 ימים אחרונים</div>
+          <div class="stat-pair">
+            <div><div class="stat-value" id="viewsMonth">—</div><div class="stat-label">כניסות</div></div>
+            <div><div class="stat-value" id="uniquesMonth">—</div><div class="stat-label">מבקרים ייחודיים</div></div>
+          </div>
         </div>
         <div class="stat-card">
+          <div class="stat-period">סה"כ</div>
           <div class="stat-value" id="statForms">—</div>
           <div class="stat-label">פניות שהוגשו</div>
         </div>
@@ -142,11 +154,11 @@ tr:hover td { background: rgba(201,168,76,0.04); }
       <!-- Charts -->
       <div class="charts-grid">
         <div class="chart-card">
-          <div class="chart-title">ביקורים לפי יום (30 יום אחרונים)</div>
+          <div class="chart-title">כניסות ומבקרים ייחודיים לפי יום (30 יום אחרונים)</div>
           <canvas id="dailyChart" height="200"></canvas>
         </div>
         <div class="chart-card">
-          <div class="chart-title">מכשירים</div>
+          <div class="chart-title">מכשירים (מבקרים ייחודיים)</div>
           <canvas id="deviceChart" height="200"></canvas>
         </div>
       </div>
@@ -162,6 +174,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
               <th>טלפון</th>
               <th>אימייל</th>
               <th>נושא</th>
+              <th>הודעה</th>
             </tr>
           </thead>
           <tbody id="submissionsTable"></tbody>
@@ -174,90 +187,78 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 <script>
 const SUPABASE_URL = 'https://ukosuuepdpdnbuavmidd.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrb3N1dWVwZHBkbmJ1YXZtaWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjExODQsImV4cCI6MjA5NTc5NzE4NH0.lLc2UFKT5aCHW9myPb8FUymYwhdSACgfyg7uZLWaXjo';
-const PASSWORD = 'omri2025';
 
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function login() {
+// Password is checked server-side by the dashboard_data() function
+async function login() {
   const pw = document.getElementById('passwordInput').value;
-  if (pw === PASSWORD) {
-    sessionStorage.setItem('dashAuth', '1');
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadData();
-  } else {
-    document.getElementById('loginError').textContent = 'סיסמה שגויה';
-  }
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  const data = await fetchData(pw);
+  if (!data) { err.textContent = 'סיסמה שגויה'; return; }
+  sessionStorage.setItem('dashPw', pw);
+  try { localStorage.setItem('noTrack', '1'); } catch (e) {}
+  showDashboard(data);
 }
 
 function logout() {
-  sessionStorage.removeItem('dashAuth');
+  sessionStorage.removeItem('dashPw');
   location.reload();
 }
 
-if (sessionStorage.getItem('dashAuth') === '1') {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  loadData();
+async function fetchData(pw) {
+  const { data, error } = await _sb.rpc('dashboard_data', { pw });
+  if (error) { console.error(error); return null; }
+  return data;
 }
 
-async function loadData() {
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-  const weekStart = new Date(now - 7*24*60*60*1000).toISOString();
-  const monthStart = new Date(now - 30*24*60*60*1000).toISOString();
+function esc(v) {
+  return String(v ?? '—').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
 
-  // Fetch all views (last 30 days)
-  const { data: views } = await _sb.from('page_views')
-    .select('*').gte('created_at', monthStart).order('created_at', { ascending: true });
+const savedPw = sessionStorage.getItem('dashPw');
+if (savedPw) {
+  fetchData(savedPw).then(data => data ? showDashboard(data) : logout());
+}
 
-  // Fetch submissions
-  const { data: submissions } = await _sb.from('contact_submissions')
-    .select('*').order('created_at', { ascending: false }).limit(10);
+function showDashboard(d) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
 
   // Stats
-  const today = views.filter(v => v.created_at >= todayStart).length;
-  const week  = views.filter(v => v.created_at >= weekStart).length;
-  document.getElementById('statToday').textContent = today;
-  document.getElementById('statWeek').textContent  = week;
-  document.getElementById('statMonth').textContent = views.length;
-  document.getElementById('statForms').textContent = submissions?.length || 0;
+  for (const p of ['today', 'week', 'month']) {
+    const P = p[0].toUpperCase() + p.slice(1);
+    document.getElementById('views' + P).textContent   = d['views_' + p];
+    document.getElementById('uniques' + P).textContent = d['uniques_' + p];
+  }
+  document.getElementById('statForms').textContent = d.submissions_total;
 
   // Daily chart
-  const days = {};
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(now - i*24*60*60*1000);
-    const key = d.toISOString().slice(0,10);
-    days[key] = 0;
-  }
-  views.forEach(v => {
-    const key = v.created_at.slice(0,10);
-    if (days[key] !== undefined) days[key]++;
-  });
-
   new Chart(document.getElementById('dailyChart'), {
     type: 'bar',
     data: {
-      labels: Object.keys(days).map(d => d.slice(5)),
-      datasets: [{ data: Object.values(days), backgroundColor: 'rgba(201,168,76,0.7)', borderRadius: 4 }]
+      labels: d.daily.map(x => x.day.slice(5)),
+      datasets: [
+        { label: 'כניסות', data: d.daily.map(x => x.views), backgroundColor: 'rgba(201,168,76,0.7)', borderRadius: 4 },
+        { label: 'מבקרים ייחודיים', data: d.daily.map(x => x.uniques), backgroundColor: 'rgba(100,180,255,0.7)', borderRadius: 4 }
+      ]
     },
     options: {
-      plugins: { legend: { display: false } },
+      plugins: { legend: { labels: { color: '#888', font: { size: 12 } } } },
       scales: {
         x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: '#2a3550' } },
-        y: { ticks: { color: '#888' }, grid: { color: '#2a3550' }, beginAtZero: true }
+        y: { ticks: { color: '#888', precision: 0 }, grid: { color: '#2a3550' }, beginAtZero: true }
       }
     }
   });
 
   // Device chart
-  const mobile  = views.filter(v => v.device === 'mobile').length;
-  const desktop = views.filter(v => v.device === 'desktop').length;
   new Chart(document.getElementById('deviceChart'), {
     type: 'doughnut',
     data: {
       labels: ['Mobile', 'Desktop'],
-      datasets: [{ data: [mobile, desktop], backgroundColor: ['#C9A84C', '#64b4ff'], borderWidth: 0 }]
+      datasets: [{ data: [d.devices.mobile || 0, d.devices.desktop || 0], backgroundColor: ['#C9A84C', '#64b4ff'], borderWidth: 0 }]
     },
     options: {
       plugins: { legend: { labels: { color: '#888', font: { size: 12 } } } },
@@ -267,15 +268,16 @@ async function loadData() {
 
   // Submissions table
   const tbody = document.getElementById('submissionsTable');
-  tbody.innerHTML = (submissions || []).map(s => `
+  tbody.innerHTML = d.submissions.length ? d.submissions.map(s => `
     <tr>
-      <td>${new Date(s.created_at).toLocaleDateString('he-IL')}</td>
-      <td>${s.full_name}</td>
-      <td>${s.phone}</td>
-      <td>${s.email || '—'}</td>
-      <td>${s.subject || '—'}</td>
+      <td>${new Date(s.created_at).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' })}</td>
+      <td>${esc(s.full_name)}</td>
+      <td>${esc(s.phone)}</td>
+      <td>${esc(s.email)}</td>
+      <td>${esc(s.subject)}</td>
+      <td>${esc(s.message)}</td>
     </tr>
-  `).join('');
+  `).join('') : '<tr><td colspan="6" style="text-align:center;color:#666">אין פניות עדיין</td></tr>';
 
   document.getElementById('loadingMsg').style.display = 'none';
   document.getElementById('content').style.display = 'block';
