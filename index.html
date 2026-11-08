@@ -162,7 +162,7 @@ nav {
   aspect-ratio: 3/4;
   border-radius: 20px;
   overflow: hidden;
-  background: url('lawyer-portrait.png') top center/cover no-repeat;
+  background: var(--dark) url('lawyer-portrait.png') top center/180% auto no-repeat;
   box-shadow: 0 24px 64px rgba(0,0,0,0.5);
   position: relative;
 }
@@ -381,7 +381,7 @@ section { padding: 96px 32px; }
   aspect-ratio: 3/4;
   border-radius: 20px;
   overflow: hidden;
-  background: url('lawyer-portrait.png') top center/cover no-repeat;
+  background: var(--bg-alt) url('lawyer-portrait.png') top center/180% auto no-repeat;
   box-shadow: 0 32px 72px rgba(28,37,55,0.22);
 }
 .about-photo-name {
@@ -514,95 +514,6 @@ section { padding: 96px 32px; }
   color: var(--text-light);
   line-height: 1.75;
 }
-
-/* ══════════════════════════════ TESTIMONIALS ══════════════════════════════ */
-#testimonials {
-  background: var(--dark);
-  position: relative;
-  overflow: hidden;
-}
-#testimonials::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(ellipse 70% 50% at 20% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-#testimonials .section-title { color: #fff; }
-#testimonials .section-label { color: var(--gold); }
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 26px;
-  margin-top: 48px;
-}
-.testimonial-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 18px;
-  padding: 36px;
-  position: relative;
-  transition: background 0.2s, border-color 0.2s;
-}
-.testimonial-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(201,168,76,0.25);
-}
-.quote-mark {
-  font-family: 'Alef', sans-serif;
-  font-size: 72px;
-  font-weight: 700;
-  color: var(--gold);
-  opacity: 0.2;
-  line-height: 1;
-  margin-bottom: -16px;
-  user-select: none;
-}
-.testimonial-text {
-  font-size: 17px;
-  color: rgba(255,255,255,0.82);
-  line-height: 1.8;
-  margin-bottom: 28px;
-  position: relative;
-}
-.stars {
-  color: var(--gold);
-  font-size: 15px;
-  margin-bottom: 16px;
-  letter-spacing: 2px;
-}
-.testimonial-author {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  padding-top: 20px;
-}
-.author-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(201,168,76,0.15);
-  border: 2px solid rgba(201,168,76,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Alef', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--gold);
-  flex-shrink: 0;
-}
-.author-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 2px;
-}
-.author-role { font-size: 12px; color: rgba(255,255,255,0.4); }
 
 /* ══════════════════════════════ CONTACT ══════════════════════════════ */
 #contact { background: var(--bg-alt); }
@@ -929,7 +840,6 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
 @media (max-width: 960px) {
   .about-text-only { max-width: 640px; }
   .services-grid { grid-template-columns: 1fr 1fr; }
-  .testimonials-grid { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
   .contact-sidebar { position: static; }
 }
@@ -973,7 +883,6 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
     <ul class="nav-links">
       <li><a href="#about">אודות</a></li>
       <li><a href="#services">תחומי התמחות</a></li>
-      <li><a href="#testimonials">המלצות</a></li>
       <li><a href="#contact">צור קשר</a></li>
     </ul>
     <a href="tel:054-2233625" class="nav-phone">
@@ -1097,40 +1006,6 @@ body.a11y-links a { text-decoration: underline !important; outline: 2px solid cu
         </div>
         <h3 class="service-title">ליווי חברות ותאגידים</h3>
         <p class="service-desc">הקמת חברות, הסכמי מייסדים וליווי משפטי שוטף לעסקים.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════ TESTIMONIALS ═══════════════════════════ -->
-<section id="testimonials">
-  <div class="section-inner">
-    <p class="section-label reveal" style="color: var(--gold);">מה הלקוחות אומרים</p>
-    <h2 class="section-title reveal">המלצות</h2>
-    <div class="testimonials-grid">
-      <div class="testimonial-card reveal reveal-delay-1">
-        <div class="quote-mark">"</div>
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">האכפתיות, הידע והמקצועיות שלהם היו עבורי מעל ומעבר. קיבלתי ייצוג אישי ומסור לאורך כל התהליך.</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">י</div>
-          <div>
-            <p class="author-name">יוסי כ.</p>
-            <p class="author-role">רוכש דירה</p>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card reveal reveal-delay-2">
-        <div class="quote-mark">"</div>
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">חיפשתי עורך דין שבאמת יבין את הצרכים שלי. עומרי נתן לי בדיוק את זה — זמינות, מקצועיות ושקיפות מלאה לאורך כל הדרך.</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">מ</div>
-          <div>
-            <p class="author-name">מיכאל ד.</p>
-            <p class="author-role">יזם נדל"ן</p>
-          </div>
-        </div>
       </div>
     </div>
   </div>
